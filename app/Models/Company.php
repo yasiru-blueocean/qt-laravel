@@ -20,4 +20,11 @@ class Company extends Model
         'company_createdate',
         'company_status'
     ];
+
+
+
+public function creator()
+{
+    return $this->belongsTo(User::class, 'company_createby', 'U_id');
+}
 }
