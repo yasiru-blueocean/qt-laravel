@@ -7,6 +7,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\SaleController;
 
 Route::get('/test', function () {
     return response()->json(['message' => 'API is working']);
@@ -21,3 +22,5 @@ Route::get('/customers',[CustomerController::class, 'index']);
 Route::get('/projects', [ProjectController::class, 'index']);
 
 Route::get('/users', [UserController::class, 'index']);
+
+Route::get('/sales', [SaleController::class, 'index']);
