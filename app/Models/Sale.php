@@ -33,6 +33,7 @@ class Sale extends Model
         return $this->hasMany(Payment::class, 'sale_id')->where('active_status' , 0);
     }
 
+   
     //Accessor for get total paid amount
     public function getTotalPaidAttribute()
     {
@@ -69,5 +70,10 @@ class Sale extends Model
             return $this->paymentPlans->first()->installment === "Reservation Fee" ? 1 : 0;
         }
         return 2;
+    }
+
+      public function user()
+    {
+        return $this->belongsTo(User::class, 'sale_by', 'U_id');
     }
     }

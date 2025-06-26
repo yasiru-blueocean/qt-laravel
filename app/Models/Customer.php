@@ -33,4 +33,11 @@ class Customer extends Model
         'BR_Number'
 
     ];
+
+    public function sales()
+    {
+        return $this->hasMany(Sale::class, 'Customer_id', 'Customer_id');
+    }
 }
+
+
