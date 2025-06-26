@@ -76,4 +76,8 @@ class Sale extends Model
     {
         return $this->belongsTo(User::class, 'sale_by', 'U_id');
     }
+
+    public function handlingPerson() {
+    return $this->belongsTo(User::class, 'handling_person');
+}
     }
