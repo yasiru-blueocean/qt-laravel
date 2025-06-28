@@ -13,4 +13,3 @@ class CustomerController extends Controller
         return response()->json($customers);
     }
 }
-

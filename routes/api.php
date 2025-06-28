@@ -20,7 +20,6 @@ Route::get('/test', function () {
 
 Route::get('/projects/{projectId}/units',[ProjectUnitController::class, 'index']);
 
-
 Route::get('/projects/units/{projectId}',[ProjectUnitController::class, 'index']); 
 
 Route::get('/companies',[CompanyController::class, 'index']);
