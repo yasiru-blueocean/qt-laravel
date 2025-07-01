@@ -13,12 +13,11 @@ use App\Http\Controllers\RefundSaleController;
 use App\Http\Controllers\CustomerReportController;
 use App\Http\Controllers\MonthlySalesSummaryController;
 use App\Http\Controllers\SaleSummaryReportController;
+use App\Http\Controllers\PaymentReportController;
 
 Route::get('/test', function () {
     return response()->json(['message' => 'API is working']);
 });
-
-Route::get('/projects/{projectId}/units',[ProjectUnitController::class, 'index']);
 
 
 Route::get('/projects/units/{projectId}',[ProjectUnitController::class, 'index']); 
@@ -40,3 +39,5 @@ Route::get('/customer-report', [CustomerReportController::class, 'index']);
 Route::get('/monthly-sales-summary', [MonthlySalesSummaryController::class, 'index']);
 
 Route::get('/sales-summary-report', [SaleSummaryReportController::class, 'index']);
+
+Route::get('/payment-report', [PaymentReportController::class, 'index']);
