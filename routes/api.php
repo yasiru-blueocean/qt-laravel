@@ -13,7 +13,8 @@ use App\Http\Controllers\RefundSaleController;
 use App\Http\Controllers\CustomerReportController;
 use App\Http\Controllers\MonthlySalesSummaryController;
 use App\Http\Controllers\SaleSummaryReportController;
-use App\Http\Controllers\PaymentReportController;
+use App\Http\Controllers\SaleViseDueCollectionReportController;
+
 
 Route::get('/test', function () {
     return response()->json(['message' => 'API is working']);
@@ -40,4 +41,4 @@ Route::get('/monthly-sales-summary', [MonthlySalesSummaryController::class, 'ind
 
 Route::get('/sales-summary-report', [SaleSummaryReportController::class, 'index']);
 
-Route::get('/payment-report', [PaymentReportController::class, 'index']);
+Route::get('/sale-vise-due-collection-report', [SaleViseDueCollectionReportController::class, 'index']);

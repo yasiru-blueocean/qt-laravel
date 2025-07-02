@@ -80,4 +80,16 @@ class Sale extends Model
     public function handlingPerson() {
     return $this->belongsTo(User::class, 'handling_person');
 }
+
+
+public function getTotalDueAmountAttribute()
+{
+    return $this->paymentPlans
+        ->filter(function ($plan) {
+            $dueDate = $plan->actual_due_date ?? $plan->due_date;
+            return $dueDate < now() && $plan->due_amount > 0;
+        })
+        ->sum('due_amount');
+}
+
     }
