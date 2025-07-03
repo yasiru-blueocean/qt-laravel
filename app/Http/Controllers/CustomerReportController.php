@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Customer;
+use App\Models\Company;
+use App\Models\Project;
+use App\Models\User;
 
 class CustomerReportController extends Controller
 {
@@ -60,7 +63,9 @@ class CustomerReportController extends Controller
                     $purchases[] = $sale->sale_id;
                     $salesPersons[] = $sale->user ? $sale->user->U_FName : '';
                     $companies[] = $sale->project && $sale->project->company ? $sale->project->company->company_name : '';
+
                     $projects[] = $sale->project ? $sale->project->project_name : '';
+
                     $units[] = $sale->unit ? $sale->unit->unit_Name : '';
                 }
                 $total_purchases += count($purchases);
@@ -80,11 +85,36 @@ class CustomerReportController extends Controller
         }
         $total_customers = count($results);
 
-        return response()->json([
+        $filterDetails = [];
+
+        if ($request->filled('selectedCompany') && $request->selectedCompany !== 'SelectCompany') {
+            $company = Company::find($request->selectedCompany);
+            $filterDetails['company_name'] = $company ? $company->company_name : null;
+        }
+
+        if ($request->filled('selectedProject') && $request->selectedProject !== 'SelectProject') {
+            $project = Project::find($request->selectedProject);
+            $filterDetails['project_name'] = $project ? $project->project_name : null;
+        }
+
+        if ($request->filled('selectedSalesMember') && $request->selectedSalesMember !== 'SelectSalesMember') {
+            $user = User::find($request->selectedSalesMember);
+            $filterDetails['sales_member_name'] = $user ? $user->U_FName . ' ' . $user->U_LName : null;
+        }
+
+        if ($request->filled('selectedHandlingPerson') && $request->selectedHandlingPerson !== 'SelectHandlingPerson') {
+            $user = User::find($request->selectedHandlingPerson);
+            $filterDetails['handling_person_name'] = $user ? $user->U_FName . ' ' . $user->U_LName : null;
+        }
+
+
+       return response()->json([
             'total_customers' => $total_customers,
             'total_purchases' => $total_purchases,
-            'customers'       => $results
+            'customers'       => $results,
+            'filters'         => $filterDetails
         ]);
+
     }
 }
 
