@@ -2,84 +2,75 @@
 
 namespace App\Http\Controllers;
 
+
 use Illuminate\Http\Request;
 use App\Models\Sale;
 use App\Models\Payment;
+use App\Models\User;
 use Carbon\Carbon;
 
 class CollectionReportController extends Controller
 {
     public function index(Request $request)
     {
-        $activeStatus = $request->input('active_status', 2); // Default: overall
         $startDate = $request->input('startDate');
         $endDate = $request->input('endDate');
-        $project = $request->input('selectedProject');
-        $company = $request->input('selectedCompany');
-        $sales = $request->input('selectedSalesMember');
-        $handler = $request->input('selectedHandlingPerson');
+        $selectedCompany = $request->input('formSelectedCompany');
+        $selectedProject = $request->input('formSelectedProject');
+        $selectedSalesPerson = $request->input('formSalesPersonSelect');
+        $selectedHandlingPerson = $request->input('formHandlingPersonSelect');
 
-        $query = Sale::with(['project.company', 'unit', 'customer', 'handlingPerson', 'payments'])
-            ->whereIn('active_status', [0,3,4]);
+        $salesQuery = Sale::with(['project', 'unit', 'customer', 'handlingPerson'])
+            ->whereIn('active_status', [0, 3, 4]);
 
-
-       if ($startDate && $endDate) {
-            $query->whereBetween('sale_date', [$startDate, $endDate]);
-        } elseif ($startDate) {
-            $query->whereDate('sale_date', '=', $startDate);
-        } elseif ($endDate) {
-            $query->whereDate('sale_date', '=', $endDate);
+        // 🔍 Filter by project/company
+        if ($selectedCompany && $selectedCompany !== 'Select Company') {
+            $salesQuery->whereHas('unit', fn($q) => $q->where('company_id', $selectedCompany));
         }
 
-
-        if ($project && $project !== 'SelectProject') {
-            $query->where('project_id', $project);
+        if ($selectedProject && $selectedProject !== 'Select Project') {
+            $salesQuery->where('project_id', $selectedProject);
         }
 
-        if ($company && $company !== 'SelectCompany') {
-            $query->whereHas('project', function ($q) use ($company) {
-                $q->where('company_id', $company);
-            });
+        if ($selectedSalesPerson && $selectedSalesPerson !== 'Select Sales Person') {
+            $salesQuery->where('sale_by', $selectedSalesPerson);
         }
 
-        if ($sales && $sales !== 'SelectSalesMember') {
-            $query->where('sale_by', $sales);
+        if ($selectedHandlingPerson) {
+            $salesQuery->where('handling_person', $selectedHandlingPerson);
         }
 
-        if ($handler) {
-            $query->where('handling_person', $handler);
-        }
+        $sales = $salesQuery->get();
 
-        $sales = $query->get();
-
-        $data = [];
+        $result = [];
 
         foreach ($sales as $sale) {
-            $paid = $sale->payments->where('active_status', 0)->sum('paid_amount');
-            $balance = $sale->selling_price - $paid;
+            $paymentsQuery = Payment::where('sale_id', $sale->sale_id)->where('active_status', 0);
 
-            $data[] = [
-                'sale_date' => $sale->sale_date,
+            if ($startDate && $endDate) {
+                $paymentsQuery->whereBetween('pay_date', [$startDate, $endDate]);
+            } elseif ($startDate) {
+                $paymentsQuery->whereDate('pay_date', $startDate);
+            } elseif ($endDate) {
+                $paymentsQuery->whereDate('pay_date', $endDate);
+            }
+
+            $totalPaid = $paymentsQuery->sum('paid_amount');
+
+            $result[] = [
                 'sale_id' => $sale->sale_id,
-                'project_id' => $sale->project_id,
+                'sale_date' => $sale->sale_date,
                 'project_name' => $sale->project->project_name ?? '',
-                'unit_id' => $sale->unit_id,
                 'unit_Name' => $sale->unit->unit_Name ?? '',
-                'company_name' => $sale->project->company->company_name ?? '',
-                'Customer_id' => $sale->Customer_id,
                 'C_namewinitials' => $sale->customer->C_namewinitials ?? '',
                 'handlingPersonFName' => $sale->handlingPerson->U_FName ?? '',
                 'handlingPersonLName' => $sale->handlingPerson->U_LName ?? '',
-                'active_status' => $sale->active_status,
+                'salesActiveStatus' => $sale->active_status,
                 'selling_price' => $sale->selling_price,
-                'paid_amount' => $paid,
-                'balance' => $balance,
+                'totalPaid' => $totalPaid
             ];
         }
 
-        return response()->json([
-            'total' => count($data),
-            'data' => $data,
-        ]);
+        return response()->json($result);
     }
 }
