@@ -42,8 +42,8 @@ Route::get('/monthly-sales-summary', [MonthlySalesSummaryController::class, 'ind
 
 Route::get('/sales-summary-report', [SaleSummaryReportController::class, 'index']);
 
-Route::get('/sale-vise-due-collection-report', [SaleViseDueCollectionReportController::class, 'index']);
-
 Route::get('/collection-report', [CollectionReportController::class, 'index']);
 
 Route::get('/inactive-collection-report', [InactiveCollectionReportController::class, 'index']);
+
+Route::get('/sale-vise-due-collection-report', [SaleViseDueCollectionReportController::class, 'index']);

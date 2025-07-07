@@ -6,65 +6,79 @@ use Illuminate\Http\Request;
 use App\Models\Sale;
 use App\Models\Payment;
 use Carbon\Carbon;
+use DB;
 
 class SaleViseDueCollectionReportController extends Controller
 {
     public function index(Request $request)
     {
-        $activeStatus = $request->input('active_status', 2); // Default: overall
-        $startDate = $request->input('startDate');
-        $endDate = $request->input('endDate');
-        $project = $request->input('selectedProject');
-        $company = $request->input('selectedCompany');
-        $sales = $request->input('selectedSalesMember');
-        $handler = $request->input('selectedHandlingPerson');
+        $query = Sale::with([
+            'project.company',
+            'unit',
+            'customer',
+            'saleBy',
+            'handlingPerson'
+        ])
+        ->whereNotIn('active_status', [1, 2]);
 
-        $query = Sale::with(['project.company', 'unit', 'customer', 'handlingPerson', 'payments'])
-            ->whereNotIn('active_status', [1, 2]);
+        // Filter by Active/Inactive logic
+      
 
-        // Filter by active/inactive
-        if ($activeStatus == 1) {
-            $query->whereIn('active_status', [0, 3, 4]);
-        } elseif ($activeStatus == 0) {
-            $query->whereIn('active_status', [5, 6, 7]);
+        // Filters
+        if ($request->startDate && $request->endDate) {
+            $query->whereBetween('sale_date', [$request->startDate, $request->endDate]);
+        } elseif ($request->startDate) {
+            $query->whereDate('sale_date', $request->startDate);
+        } elseif ($request->endDate) {
+            $query->whereDate('sale_date', $request->endDate);
         }
 
-       if ($startDate && $endDate) {
-            $query->whereBetween('sale_date', [$startDate, $endDate]);
-        } elseif ($startDate) {
-            $query->whereDate('sale_date', '=', $startDate);
-        } elseif ($endDate) {
-            $query->whereDate('sale_date', '=', $endDate);
+        if ($request->selectedProject && $request->selectedProject !== 'SelectProject') {
+            $query->where('project_id', $request->selectedProject);
         }
 
-
-        if ($project && $project !== 'SelectProject') {
-            $query->where('project_id', $project);
-        }
-
-        if ($company && $company !== 'SelectCompany') {
-            $query->whereHas('project', function ($q) use ($company) {
-                $q->where('company_id', $company);
+        if ($request->selectedCompany && $request->selectedCompany !== 'SelectCompany') {
+            $query->whereHas('project.company', function ($q) use ($request) {
+                $q->where('company_id', $request->selectedCompany);
             });
         }
 
-        if ($sales && $sales !== 'SelectSalesMember') {
-            $query->where('sale_by', $sales);
+        if ($request->selectedSalesMember && $request->selectedSalesMember !== 'SelectSalesMember') {
+            $query->where('sale_by', $request->selectedSalesMember);
         }
 
-        if ($handler) {
-            $query->where('handling_person', $handler);
+        if ($request->selectedHandlingPerson) {
+            $query->where('handling_person', $request->selectedHandlingPerson);
         }
 
         $sales = $query->get();
 
-        $data = [];
+        $data = $sales->map(function ($sale) {
+            $paidAmount = Payment::where('sale_id', $sale->sale_id)
+                ->where('active_status', 0)
+                ->sum('paid_amount');
 
-        foreach ($sales as $sale) {
-            $paid = $sale->payments->where('active_status', 0)->sum('paid_amount');
-            $balance = $sale->selling_price - $paid;
+            // Calculate due amount only for overdue installments that are not fully paid
+            $dueAmount = DB::table('payment_plan as pp')
+                ->where('pp.sale_id', $sale->sale_id)
+                ->whereRaw("COALESCE(pp.actual_due_date, pp.due_date) < CURDATE()")
+                ->where(function ($query) {
+                    // Only consider installments where there is still an outstanding amount
+                    $query->whereRaw("
+                        (pp.amount - COALESCE(
+                            (SELECT SUM(paid_amount) FROM payments
+                             WHERE sale_id = pp.sale_id AND pay_discription = pp.installment AND active_status = 0), 0)
+                        ) > 0
+                    ");
+                })
+                ->selectRaw("SUM(
+                    pp.amount - COALESCE(
+                        (SELECT SUM(paid_amount) FROM payments
+                         WHERE sale_id = pp.sale_id AND pay_discription = pp.installment AND active_status = 0), 0)
+                ) as due_amount")
+                ->value('due_amount');
 
-            $data[] = [
+            return [
                 'sale_date' => $sale->sale_date,
                 'sale_id' => $sale->sale_id,
                 'project_id' => $sale->project_id,
@@ -78,16 +92,13 @@ class SaleViseDueCollectionReportController extends Controller
                 'handlingPersonLName' => $sale->handlingPerson->U_LName ?? '',
                 'active_status' => $sale->active_status,
                 'selling_price' => $sale->selling_price,
-                'paid_amount' => $paid,
-                'balance' => $balance,
-                'total_due_amount' => $sale->total_due_amount ?? ''
-
+                'paid_amount' => $paidAmount,
+                'balance' => $sale->selling_price - $paidAmount,
+                'total_due_amount' => $dueAmount ?? 0,
             ];
-        }
+        });
 
-        return response()->json([
-            'total' => count($data),
-            'data' => $data,
-        ]);
+        return response()->json($data);
     }
 }
+
