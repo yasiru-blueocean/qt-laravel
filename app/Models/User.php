@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Model
+class User extends Authenticatable
 {
-    protected $table = 'user';              
-    protected $primaryKey = 'U_id';         
-    public $timestamps = false;             
+    use HasApiTokens;
+
+    protected $table = 'user';
+    protected $primaryKey = 'U_id'; 
+    public $timestamps = false;
 
     protected $fillable = [
         'U_Title',
@@ -26,4 +29,6 @@ class User extends Model
         'u_Image',
         'pw_status'
     ];
+
+    protected $hidden = ['U_Password']; // hide password 
 }
