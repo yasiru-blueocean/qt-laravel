@@ -12,17 +12,21 @@ class AuthController extends Controller
 public function login(Request $request)
 {
     try {
+        // Validate incoming request data
         $request->validate([
             'user_name' => 'required|string',
             'U_Password' => 'required|string',
         ]);
 
+        // Find user by username
         $user = User::where('user_name', $request->user_name)->first();
 
+        // If user not found, return error
         if (!$user) {
             return response()->json(['message' => 'Username does not exist'], 401);
         }
 
+        // Check if password matches
         if (!Hash::check($request->U_Password, $user->U_Password)) {
             return response()->json(['message' => 'Your Password is invalid'], 401);
         }
@@ -46,7 +50,9 @@ public function login(Request $request)
             'login_os' => $login_os,
         ]);
 
+        // Check if user account is active
         if ($user->U_Status == '0') {
+            // Create and return API token
             $token = $user->createToken('auth_token')->plainTextToken;
             return response()->json([
                 'message' => 'Login successful',
@@ -54,11 +60,14 @@ public function login(Request $request)
                 'token' => $token
             ]);
         } else {
+            // If account is deactivated, return error
             return response()->json(['message' => 'Your account has been deactivated'], 403);
         }
     } catch (\Illuminate\Validation\ValidationException $e) {
+        // Handle validation errors
         return response()->json(['error' => $e->getMessage()], 422);
     } catch (\Exception $e) {
+        // Handle other exceptions
         return response()->json(['error' => $e->getMessage()], 500);
     }
 }
@@ -89,6 +98,7 @@ private function getOS($user_agent)
         '/webos/i'              => 'Mobile',
     ];
 
+    // Match user agent string to known OS patterns
     foreach ($os_array as $regex => $value) {
         if (preg_match($regex, $user_agent)) {
             return $value;
@@ -102,21 +112,27 @@ private function getOS($user_agent)
  */
 private function getDeviceType($user_agent)
 {
+    // Check for mobile devices
     if (preg_match('/android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up.browser|up.link|webos|wos/i', $user_agent)) {
         return "Mobile";
+    // Check for tablets
     } elseif (preg_match('/ipad|ipod|iphone/i', $user_agent)) {
         return "Tablet";
+    // Check for Mac devices
     } elseif (preg_match('/macintosh|mac os x|mac_powerpc/i', $user_agent)) {
         return "Mac";
+    // Check for Windows PCs
     } elseif (preg_match('/windows|win32/i', $user_agent)) {
         return "PC";
     } else {
+        // Unknown device type
         return "Unknown";
     }
 }
 
 public function logout(Request $request)
 {
+    // Delete all tokens for the authenticated user (logout)
     $request->user()->tokens()->delete();
     return response()->json(['message' => 'Logged out']);
 }
