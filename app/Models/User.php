@@ -31,4 +31,15 @@ class User extends Authenticatable
     ];
 
     protected $hidden = ['U_Password']; // hide password 
+    
+
+/* Get all companies created by this user.
+ *
+ *   This defines a one-to-many relationship where a user
+ * can create multiple companies.*/
+
+    public function createCompanies()
+    {
+        return $this->hasMany(Company::class, 'company_createby');
+    }
 }

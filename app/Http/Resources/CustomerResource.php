@@ -34,6 +34,6 @@ class CustomerResource extends JsonResource
         // 'C_Cratedby' => $this->C_Cratedby,
         // 'C_CratedDate' => $this->C_CratedDate,
         'BR_Number' =>$this->BR_Number,
-    ];
+     ];
     }
 }
