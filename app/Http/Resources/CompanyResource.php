@@ -21,10 +21,10 @@ class CompanyResource extends JsonResource
             // 'company_Phone' => $this->company_Phone,
             'company_description' => $this->company_description,
             'company_address' => $this->company_address,
-            'CompanyCreateBy' => [
-                'U_FName' => $this->CompanyCreateBy->U_FName ?? '',
-                'U_LName' => $this->CompanyCreateBy->U_LName ?? '',
-                'u_Image' => $this->CompanyCreateBy->u_Image ?? null,
+            'companyCreateBy' => [
+                'U_FName' => $this->companyCreateBy->U_FName ?? '',
+                'U_LName' => $this->companyCreateBy->U_LName ?? '',
+                'u_Image' => $this->companyCreateBy->u_Image ?? null,
             ],
             'company_createdate' => $this->company_createdate,
             'company_status' => $this->company_status,

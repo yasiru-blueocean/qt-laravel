@@ -24,8 +24,8 @@ class Company extends Model
 
    
    // get the user who created the company
-   public function CompanyCreateBy()
+   public function companyCreateBy()
    {
-     return $this ->belongsto(User::class, 'company_createby', 'U_id');
+     return $this ->belongsTo(User::class, 'company_createby', 'U_id');
    }
 }
