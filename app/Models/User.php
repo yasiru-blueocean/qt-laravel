@@ -42,4 +42,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Company::class, 'company_createby');
     }
+
+    public function projects()
+    {
+        return $this->hasMany(Project::class, 'project_createby');
+    }
 }

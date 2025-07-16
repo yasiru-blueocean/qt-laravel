@@ -28,4 +28,10 @@ class Company extends Model
    {
      return $this ->belongsTo(User::class, 'company_createby', 'U_id');
    }
+
+  //get all projects associated with the company
+   public function projects()
+   {
+     return $this->hasMany(Project::class, 'company_id', 'company_id');
+   }
 }
