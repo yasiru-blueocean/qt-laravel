@@ -26,7 +26,7 @@ class UserResource extends JsonResource
             'U_Status' => $this->U_Status,
             'U_Cratedby' => $this->U_Cratedby,
             'U_CratedDate' => $this->U_CratedDate,
-            'U_Password' => $this->U_Password,
+            // 'U_Password' => $this->U_Password,
             'u_Image' => $this->u_Image,
             'pw_status' => $this->pw_status,
         ];
