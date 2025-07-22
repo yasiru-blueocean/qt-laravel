@@ -49,10 +49,10 @@ class Sale extends Model
     return $this->belongsTo(ProjectUnits::class, 'unit_id', 'unit_id');
    }
 
-//    public function sale_by()
-//    {
-//     return $this->belongsTo(User::class, 'sale_by', 'U_id');
-//    }
+   public function saleBy()
+   {
+    return $this->belongsTo(User::class, 'sale_by', 'U_id');
+   }
 
 //    public function sale_crate_by()
 //    {

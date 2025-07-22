@@ -32,4 +32,9 @@ class Customer extends Model
          'C_status',
          'BR_Number'
     ];
+
+    public function sales()
+    {
+        return $this->hasMany(Sale::class, 'Customer_id', 'Customer_id');
+    }
 }
