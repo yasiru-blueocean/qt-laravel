@@ -11,6 +11,7 @@ use App\Http\Controllers\ProjectUnitController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\RefundSaleController;
 use App\Http\Controllers\CustomerReportController;
+use App\Http\Controllers\MonthlySaleSummaryController;
 
 Route::get('/test', function () {
     return response()->json(['message' => 'API is working']);
@@ -29,5 +30,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/sales', [SaleController::class, 'index']);
     Route::get('/refund-sales', [RefundSaleController::class, 'index']);
     Route::get('/customer-report', [CustomerReportController::class, 'index']);
+    Route::get('/monthly-sales-summary-report', [MonthlySaleSummaryController::class, 'index']);
 
 });
