@@ -59,10 +59,10 @@ class Sale extends Model
 //     return $this->belongsTo(User::class, 'sale_crate_by', 'U_id');
 //    }
 
-//    public function handling_person()
-//    {
-//     return $this->belongsTo(User::class, 'handling_person', 'U_id');
-//    }
+   public function handlingPerson()
+   {
+    return $this->belongsTo(User::class, 'handling_person', 'U_id');
+   }
 
    public function payments()
    {
