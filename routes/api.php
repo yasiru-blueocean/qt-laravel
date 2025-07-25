@@ -13,6 +13,9 @@ use App\Http\Controllers\RefundSaleController;
 use App\Http\Controllers\CustomerReportController;
 use App\Http\Controllers\MonthlySaleSummaryController;
 use App\Http\Controllers\SalesSummaryController;
+use App\Http\Controllers\ActiveCollectionController;
+use App\Http\Controllers\InactiveCollectionController;
+use App\Http\Controllers\SaleViseDueCollectionController;
 
 Route::get('/test', function () {
     return response()->json(['message' => 'API is working']);
@@ -33,5 +36,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/customer-report', [CustomerReportController::class, 'index']);
     Route::get('/monthly-sales-summary-report', [MonthlySaleSummaryController::class, 'index']);
     Route::get('/sales-summary-report', [SalesSummaryController::class, 'index']);
+     Route::get('/collection-report', [ActiveCollectionController::class, 'index']);
+      Route::get('/inactive-collection-report', [InactiveCollectionController::class, 'index']);
+      Route::get('/sale-vise-due-collection', [SaleViseDueCollectionController::class, 'index']);
 
 });
