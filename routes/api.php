@@ -16,6 +16,7 @@ use App\Http\Controllers\SalesSummaryController;
 use App\Http\Controllers\ActiveCollectionController;
 use App\Http\Controllers\InactiveCollectionController;
 use App\Http\Controllers\SaleViseDueCollectionController;
+use App\Http\Controllers\StockReportController;
 
 Route::get('/test', function () {
     return response()->json(['message' => 'API is working']);
@@ -39,5 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
      Route::get('/collection-report', [ActiveCollectionController::class, 'index']);
       Route::get('/inactive-collection-report', [InactiveCollectionController::class, 'index']);
       Route::get('/sale-vise-due-collection', [SaleViseDueCollectionController::class, 'index']);
+      Route::get('/stock-report', [StockReportController::class, 'index']);
+
 
 });
